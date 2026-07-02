@@ -31,7 +31,7 @@ jobs:
       # 4. 执行打包[reference:9][reference:10]
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller -F wkb_tool.py # 替换为你的主文件名
+          pyinstaller -F --collect-all shapely wkb_tool.py # 替换为你的主文件名
 
       # 5. 上传打包结果 (Artifact)[reference:11]
       - name: Upload artifact
