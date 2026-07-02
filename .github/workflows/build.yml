@@ -35,7 +35,7 @@ jobs:
 
       # 5. 上传打包结果 (Artifact)[reference:11]
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: wkb_tool-windows
           path: dist/wkb_tool.exe # 替换为你的输出文件名
