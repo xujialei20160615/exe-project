@@ -29,6 +29,21 @@ def parse_wkb_all(hex_str):
     except (ShapelyError, ValueError, TypeError):
         return ("无效WKB", None, None)
 
+# 读取配置文件
+CONFIG_FILE = "config.txt" # 定义配置文件名
+
+def get_wkb_column():
+    config_path = os.path.join(app_path, CONFIG_FILE)
+    if not os.path.exists(config_path):
+        # 如果配置文件不存在，创建一个默认的
+        with open(config_path, 'w', encoding='utf-8') as f:
+            f.write("polygon_geom") # 写入默认列名
+        return "polygon_geom"
+    
+    with open(config_path, 'r', encoding='utf-8') as f:
+        col_name = f.read().strip()
+    return col_name
+
 def main():
     # 自动获取当前程序所在文件夹（解决路径错位问题）
     if hasattr(sys, '_MEIPASS'):
@@ -41,7 +56,8 @@ def main():
     INPUT_CSV_NAME = "原始数据.csv"
     INPUT_CSV = os.path.join(app_path, INPUT_CSV_NAME)
     OUTPUT_CSV = os.path.join(app_path, "解析后输出.csv")
-    WKB_COL = "polygon_geom"  # 替换成你CSV真实列名
+    # ... 前面的路径定义 ...
+    WKB_COL = get_wkb_column() # 调用函数获取列名
     CSV_ENCODING = "utf-8-sig"
 
     if not os.path.exists(INPUT_CSV):
