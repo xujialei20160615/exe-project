@@ -4,6 +4,19 @@ from shapely.errors import ShapelyError
 import os
 import sys
 
+# ====================== 新增：统一路径获取函数 ======================
+# 专门处理「开发环境/打包环境」的路径兼容，所有需要获取程序目录的地方都调用这个函数
+def get_app_path():
+    """获取程序当前所在的根目录，兼容PyInstaller打包后的环境"""
+    if hasattr(sys, '_MEIPASS'):
+        # 打包成exe后，sys._MEIPASS指向临时解压目录，我们要的是exe本身的目录
+        return os.path.dirname(sys.executable)
+    else:
+        # 本地运行.py脚本时，返回脚本所在目录
+        return os.path.dirname(os.path.abspath(__file__))
+
+# ==================================================================
+
 # 1、mac生成的是unix可执行文件
 # 进入文件夹 cd /Users/xuming/python/PycharmProjects/让excel飞/常用工具
 # 生成可执行文件 pyinstaller -F -w wkb_tool.py
@@ -14,7 +27,6 @@ import sys
 # #进入文件夹 cd C:\Users\xuming\python\PycharmProjects\让excel飞\常用工具
 # 生成可执行文件 pyinstaller -F wkb_tool.py 不加 -w：双击 exe，弹出黑色 CMD 窗口
 # 生成可执行文件 pyinstaller -F -w wkb_tool.py 加 -w：只弹出软件界面，无黑色 CMD 窗口
-
 
 def parse_wkb_all(hex_str):
     if pd.isna(hex_str) or str(hex_str).strip() == "":
@@ -33,7 +45,9 @@ def parse_wkb_all(hex_str):
 CONFIG_FILE = "config.txt" # 定义配置文件名
 
 def get_wkb_column():
-    config_path = os.path.join(app_path, CONFIG_FILE)
+    # ====================== 修改点：不再依赖外部变量，自己调用路径函数 ======================
+    config_path = os.path.join(get_app_path(), CONFIG_FILE)
+    # ====================================================================================
     if not os.path.exists(config_path):
         # 如果配置文件不存在，创建一个默认的
         with open(config_path, 'w', encoding='utf-8') as f:
@@ -45,18 +59,13 @@ def get_wkb_column():
     return col_name
 
 def main():
-    # 自动获取当前程序所在文件夹（解决路径错位问题）
-    if hasattr(sys, '_MEIPASS'):
-        # 打包后临时目录
-        app_path = os.path.dirname(sys.executable)
-    else:
-        # 本地py脚本运行
-        app_path = os.path.dirname(os.path.abspath(__file__))
+    # ====================== 修改点：调用统一路径函数，不再重复定义 ======================
+    app_path = get_app_path()
+    # ================================================================================
     
     INPUT_CSV_NAME = "原始数据.csv"
     INPUT_CSV = os.path.join(app_path, INPUT_CSV_NAME)
     OUTPUT_CSV = os.path.join(app_path, "解析后输出.csv")
-    # ... 前面的路径定义 ...
     WKB_COL = get_wkb_column() # 调用函数获取列名
     CSV_ENCODING = "utf-8-sig"
 
